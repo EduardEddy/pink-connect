@@ -23,5 +23,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::get('/orders',[OrderController::class,'index']);
 Route::get('/orders/{order}',[OrderController::class,'show']);
+Route::put("/orders/{order}/status/{status}",[OrderController::class, "updateOrderStatus"]);
+Route::put("/orders/{order}/lines",[OrderController::class, "cancelProducts"]);
+Route::post("/orders/{order}/refund",[OrderController::class, "refundMoney"]);
+Route::post("/orders/{order}/return",[OrderController::class, "returnProduct"]);
 
 Route::get('offers/file_status',[OfferController::class,'getFileStatus']);

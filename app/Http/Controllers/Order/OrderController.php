@@ -23,4 +23,24 @@ class OrderController extends Controller
     {
         return $this->service->getHttp('/orders/'.$order);
     }
+
+    public function updateOrderStatus($order ,$status)
+    {
+        return $this->service->putHttp('/orders/'.$order.'/status/'.$status);
+    }
+
+    public function cancelProducts($order)
+    {
+        return $this->service->putHttp('/orders/'.$order.'/lines');
+    }
+
+    public function refundMoney($order)
+    {
+        return $this->service->postHttp('/orders/'.$order.'/refund');
+    }
+
+    public function returnProduct($order)
+    {
+        return $this->service->postHttp('/orders/'.$order.'/refund');
+    }
 }

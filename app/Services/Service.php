@@ -25,4 +25,22 @@ class Service
             \Log::critical($th->getMessage());
         }
     }
+
+    public function putHttp($endpoint)
+    {
+        try {
+            return Http::withHeaders($this->HEADER)->put($this->PATH.$endpoint);
+        } catch (\Throwable $th) {
+            \Log::critical($th->getMessage());
+        }
+    }
+
+    public function postHttp($endpoint)
+    {
+        try {
+            return Http::withHeaders($this->HEADER)->post($this->PATH.$endpoint);
+        } catch (\Throwable $th) {
+            \Log::critical($th->getMessage());
+        }
+    }
 }
