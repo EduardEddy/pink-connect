@@ -29,3 +29,4 @@ Route::post("/orders/{order}/refund",[OrderController::class, "refundMoney"]);
 Route::post("/orders/{order}/return",[OrderController::class, "returnProduct"]);
 
 Route::get('offers/file_status',[OfferController::class,'getFileStatus']);
+Route::get('offers/create',[OfferController::class,'create']);

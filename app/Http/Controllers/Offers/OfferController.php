@@ -18,4 +18,28 @@ class OfferController extends Controller
     {
         return $this->service->getHttp('/status/'.$request->file);
     }
+
+    Public function create()
+    {
+        $data = [
+            [
+                "gtin"=>"abc",
+                "reference"=>"abc",
+                "name"=>"abc",
+                "brand"=>"abc",
+                "base"=>"abc",
+                "price"=>"abc",
+                "selling"=>"abc",
+                "price"=>"abc",
+                "discount"=>"abc",
+                "stock"=>"abc", 
+                "available"=>"abc",
+                "price_list_name"=>"abc",	
+                "discount_start"=>"abc",
+                "discount_end"=>"abc",
+                "marketplace_status"=>"abc"
+            ]
+        ];
+        return $this->service->postHttp('/price-list/755', $data);
+    }
 }

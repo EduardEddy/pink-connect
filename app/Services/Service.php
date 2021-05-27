@@ -35,10 +35,11 @@ class Service
         }
     }
 
-    public function postHttp($endpoint)
+    public function postHttp($endpoint, $data)
     {
         try {
-            return Http::withHeaders($this->HEADER)->post($this->PATH.$endpoint);
+            
+            return Http::withHeaders($this->HEADER)->post($this->PATH.$endpoint, [$data]);
         } catch (\Throwable $th) {
             \Log::critical($th->getMessage());
         }
