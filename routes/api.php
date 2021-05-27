@@ -3,6 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Offers\OfferController;
+use App\Http\Controllers\Order\OrderController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -17,3 +20,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('/orders',[OrderController::class,'index']);
+Route::get('/orders/{order}',[OrderController::class,'show']);
+
+Route::get('offers/file_status',[OfferController::class,'getFileStatus']);

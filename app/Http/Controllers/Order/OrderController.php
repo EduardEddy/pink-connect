@@ -18,4 +18,9 @@ class OrderController extends Controller
     {
         return $this->service->getHttp('/orders');
     }
+
+    public function show( $order )
+    {
+        return $this->service->getHttp('/orders/'.$order);
+    }
 }

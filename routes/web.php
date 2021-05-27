@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Http;
-use App\Http\Controllers\Order\OrderController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -15,10 +13,5 @@ use App\Http\Controllers\Order\OrderController;
 */
 
 Route::get('/', function () {
-    //return view('welcome');
-    return Http::withHeaders([
-        'Authorization'=>'Bearer rU0SOsKO3ny9MNO4UZYC9X_3ilOPGmng'
-    ])->get(env('BASE_PATH').'/orders');
+    return view('welcome');
 });
-
-Route::get('/orders',[OrderController::class,'index']);
