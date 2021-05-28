@@ -14,12 +14,21 @@ class OfferController extends Controller
         $this->service = new Service();
     }
 
+    public function index(Request $request)
+    {
+        $offset = $request->offset ? $request->offset : 0;
+        $limit = $request->limit ? $request->limit : 50;
+        $shopId = 755;
+        $route = '/offers?shopChannelId='.$shopId.'&offset='.$offset.'&limit='.$limit;
+        return $this->service->getHttp($route);
+    }
+
     public function getFileStatus(Request $request)
     {
         return $this->service->getHttp('/status/'.$request->file);
     }
 
-    Public function create()
+    Public function priceList()
     {
         $data = [
             [
@@ -41,5 +50,30 @@ class OfferController extends Controller
             ]
         ];
         return $this->service->postHttp('/price-list/755', $data);
+    }
+
+
+    public function uploadStock(Request $request)
+    {
+        $data = [
+            [
+                "gtin"=>"abc",
+                "reference"=>"abc",
+                "name"=>"abc",
+                "brand"=>"abc",
+                "base"=>"abc",
+                "price"=>"abc",
+                "selling"=>"abc",
+                "price"=>"abc",
+                "discount"=>"abc",
+                "stock"=>"abc", 
+                "available"=>"abc",
+                "price_list_name"=>"abc",	
+                "discount_start"=>"abc",
+                "discount_end"=>"abc",
+                "marketplace_status"=>"abc"
+            ]
+        ];
+        return $this->service->postHttp('/stock', $data);
     }
 }
