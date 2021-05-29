@@ -30,5 +30,5 @@ Route::post("/orders/{order}/return",[OrderController::class, "returnProduct"]);
 
 Route::get('offers',[OfferController::class,'index']);
 Route::get('offers/file_status',[OfferController::class,'getFileStatus']);
-Route::post('offers/price_list',[OfferController::class,'priceList']);
+Route::get('offers/price_list',[OfferController::class,'priceList']);
 Route::post('offers/uploads_stocks',[OfferController::class,'uploadStock']);
