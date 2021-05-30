@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\Controller;
+use App\Models\VpStock;
 use App\Services\Service;
+use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
@@ -23,54 +25,53 @@ class OrderController extends Controller
         return $this->service->getHttp('/orders/'.$order);
     }
 
-    public function updateOrderStatus($order ,$status)
+    public function updateOrderStatus(Request $request)
     {
-        //Get order info
-        $or= $this->show($order);//se consultará a la db
-        $data = [];
-        if($status == "SHIPPED")
-        {
-            // $data = [
-            //     'trackingNumber' => $or['trackingNumber'],
-            //     'trackingUrl' => $or['trackingUrl'],
-            //     'carrierId' => $or['carrierId']
-            // ];
-            $data = [
-                'trackingNumber' => 1,
-                'trackingUrl' => "url",
-                'carrierId' => 2
-            ];   
-        }
-        if($status == "CANCELLED")
-        {
-            $data += ['reason' => $or['reason']];
-        }
-        return $data;
-        // return $this->service->putHttp('/orders/'.$order.'/status/'.$status, $data);
+        //get the info from the request
+        $order = $request->order;
+        $status = $request->status;
+
+        //body schema
+        $data = $request->input();
+
+        //excecute the puthttp() service with the params and data
+        return $this->service->putHttp('/orders/'.$order.'/status/'.$status, $data);
     }
 
     public function cancelProducts($order)
     {
         //Get order info
-        $or= $this->show($order);
-        $status =$or['status']; 
+        $or = $this->show($order);
+        $status = $or['status']; 
+
+        //request body
         $data = [];
-        if($status ==  "Pending" || $status == "Processing")
+
+        //temporal array used for adding to data
+        $temp = array();
+        if($status ==  "PENDING" || $status == "PROCESSING")
         {
+            //I go through the products of the order
             foreach($or['orderLines']  as  $line)
             {
-                $data += [
-                    'identifierType' => $line['identifierType'],
-                    'identifier' =>  $line['identifier'],
-                    'quantity' =>  $line['quantity']
+                //I extract the stock
+                $stock= $this->getStock("gtin", $line['gtin']);
+                $temp = [
+                    'identifierType' => 'gtin',
+                    'identifier' =>  $line['gtin'],
+                    'quantity' =>  $stock
                 ];
-            }           
-            return $this->service->putHttp('/orders/'.$order.'/lines', $data);            
-        }else
-        {
-            //waiting
+                array_push($data,$temp);
+            }
         }
-        
+        return $this->service->putHttp('/orders/'.$order.'/lines', $data);
+    }
+
+    //get current stock from DB
+    private function getStock($idType, $id)
+    {
+        $result= VpStock::select("stock")->where($idType,"=",$id)->first();
+        return $result['stock'];
     }
 
     public function refundMoney($order)
@@ -83,8 +84,7 @@ class OrderController extends Controller
         if($status == "SHIPPED") //A refund is allowed when status of order is SHIPPED
         {
             $data=[
-                "linesToRefund"=> [
-                
+                "linesToRefund"=> [                
                     "identifierType"=> "gtin",
                     "identifier"=> "string"            
                 ],
