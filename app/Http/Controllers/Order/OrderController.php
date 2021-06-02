@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\VpStock;
 use App\Services\Service;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use App\Http\Requests\InvoicesRequest;
 
 class OrderController extends Controller
 {
@@ -121,6 +123,18 @@ class OrderController extends Controller
         }else
         {
             //error code = 422 - message = Unprocessable Entity - Expected errors are:-Refund not allowed (wrong order status)
+        }
+    }
+
+    public function sendInvoice(InvoicesRequest $request, $order)
+    {
+        if ($request->hasFile('invoice')) {
+            $file = $request->file('invoice');
+            $destinationPath = 'invoices/';
+            $random = Str::random(40);
+            $name = $random.'.'.$file->getClientOriginalExtension();
+            $file->move($destinationPath, $name);
+            return $this->service->postFileHttp('/orders/'.$order.'/invoice',$destinationPath.'/'.$name,'invoice');
         }
     }
 }

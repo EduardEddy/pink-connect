@@ -14,7 +14,7 @@ class Service
     {
         $this->PATH = env('BASE_PATH');
         $this->TOKEN = env('TOKEN');
-        $this->HEADER = ['Authorization'=>"Bearer $this->TOKEN"];
+    $this->HEADER = ['Authorization'=>"Bearer $this->TOKEN"/*, "Content-Type"=>"application/xml"*/];
     }
 
     public function getHttp($endpoint)
@@ -42,5 +42,24 @@ class Service
         } catch (\Throwable $th) {
             \Log::critical($th->getMessage());
         }
+    }
+    
+    public function postFileHttp($endpoint, $file, $type)
+    {
+        $client = new \GuzzleHttp\Client();
+        $res = $client->request('POST', $this->PATH . $endpoint, [
+            'headers' => $this->HEADER,
+            'multipart' => [
+                [
+                    'name'     => $type,
+                    'contents' => file_get_contents($file),
+                    'filename' => $file
+                ]
+            ],
+        ]);
+        if($type =='invoice'){
+            return $res->getStatusCode();
+        }
+        return $res->getBody();
     }
 }

@@ -34,13 +34,17 @@ class OfferController extends Controller
     Public function priceList()
     {
         $data = VpPrice::all();
-        return $this->service->postHttp('/price-list/755', $data);
+        $file="price_list/prices.json";
+        file_put_contents($file, $data);
+        return $this->service->postFileHttp('/price-list/755', $file, 'priceList');
     }
 
 
     public function uploadStock(Request $request)
     {
         $data = VpStock::all();
-        return $this->service->postHttp('/stock', $data);
+        $file="stock_list/stock.json";
+        file_put_contents($file, $data);
+        return $this->service->postFileHttp('/stock', $file, 'stock');
     }
 }
