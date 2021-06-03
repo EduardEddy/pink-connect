@@ -27,8 +27,9 @@ Route::put("/orders/{order}/status/{status}",[OrderController::class, "updateOrd
 Route::put("/orders/{order}/lines",[OrderController::class, "cancelProducts"]);
 Route::post("/orders/{order}/refund",[OrderController::class, "refundMoney"]);
 Route::post("/orders/{order}/return",[OrderController::class, "returnProduct"]);
+Route::post("/orders/{order}/invoices",[OrderController::class, "sendInvoice"]);
 
 Route::get('offers',[OfferController::class,'index']);
 Route::get('offers/file_status',[OfferController::class,'getFileStatus']);
 Route::get('offers/price_list',[OfferController::class,'priceList']);
-Route::post('offers/uploads_stocks',[OfferController::class,'uploadStock']);
+Route::get('offers/uploads_stocks',[OfferController::class,'uploadStock']);
