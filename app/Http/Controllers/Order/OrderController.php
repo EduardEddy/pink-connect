@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\VpStock;
 use App\Services\Service;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -34,93 +35,127 @@ class OrderController extends Controller
         //body schema
         $data = $request->input();
 
-        //excecute the puthttp() service with the params and data
+        //excecute the puthttp() service with the params and data as the
         return $this->service->putHttp('/orders/'.$order.'/status/'.$status, $data);
     }
 
-    public function cancelProducts($order)
+    public function cancelProducts(Request $request)
     {
         //Get order info
-        $or = $this->show($order);
-        $status = $or['status']; 
+        $order = $request->order;
+        //get the status of the order
+        // $status = $this->show($order)['status'];
+        //header        
+        // $header = $request->header;
 
-        //request body
+        //body schema
         $data = [];
-
-        //temporal array used for adding to data
-        $temp = array();
-        if($status ==  "PENDING" || $status == "PROCESSING")
-        {
-            //I go through the products of the order
-            foreach($or['orderLines']  as  $line)
-            {
-                //I extract the stock
-                $stock= $this->getStock("gtin", $line['gtin']);
-                $temp = [
-                    'identifierType' => 'gtin',
-                    'identifier' =>  $line['gtin'],
-                    'quantity' =>  $stock
-                ];
-                array_push($data,$temp);
-            }
-        }
-        return $this->service->putHttp('/orders/'.$order.'/lines', $data);
+        $lines = $request->input();
+        
+        // if($status ==  "PENDING" || $status == "PROCESSING")
+        // {
+            // //I go through the products of the order
+            // foreach($lines  as  $line)
+            // {
+            //     // //I extract the stock from DB
+            //     // $stock= $this->getStock($line['identifierType'], $line['identifier']);
+            //     // if($stock)
+            //     // {
+            //     //     if($line['quantity'] > $stock)
+            //     //     {
+            //             array_push($data,$line);
+            //         // }
+            //     // }        
+            // }
+            
+        // }
+        // return $this->service->putWithHeaders($header,'/orders/'.$order.'/lines', $lines);
+        return $this->service->putHttp('/orders/'.$order.'/lines', $lines);
     }
 
     //get current stock from DB
     private function getStock($idType, $id)
     {
-        $result= VpStock::select("stock")->where($idType,"=",$id)->first();
-        return $result['stock'];
-    }
-
-    public function refundMoney($order)
-    {
-        //Get order info
-        $or= $this->show($order);
-        $status= $or['status'];
-
-
-        if($status == "SHIPPED") //A refund is allowed when status of order is SHIPPED
-        {
-            $data=[
-                "linesToRefund"=> [                
-                    "identifierType"=> "gtin",
-                    "identifier"=> "string"            
-                ],
-                "shippingCost"=> 0,
-                "amount"=> 0,
-                "currency"=> "EUR"
-            ];
-            return $this->service->postHttp('/orders/'.$order.'/refund', $data);
-        }else
-        {
-            //error code = 422 - message = Unprocessable Entity - Expected errors are:-Refund not allowed (wrong order status)
+        try {
+            $result= VpStock::select("stock")->where($idType,"=",$id)->firstOrFail();
+            return $result['stock'];
+        } catch (\Throwable $th) {
+            Log::critical($th->getMessage());
         }        
     }
 
-    public function returnProduct($order)
+    public function refundMoney(Request $request)
     {
-        
-        $or= $this->show($order);
+        //Get order info
+        $order = $request->order;
+        $or = $this->show($order);        
+        $transactionId = $request->transactionId;
+        $data = [];
         $status= $or['status'];
 
-
-        if($status == "SHIPPED") //A refund is allowed when status of order is SHIPPED
+        //A refund is allowed when status of order is SHIPPED
+        if($status == "SHIPPED") 
         {
-            $data = [
-                [
-                    "identifierType"=> "gtin",
-                    "identifier"=> "string",
-                    "quantity"=> 0,
-                    "date"=> "timestamp",
-                    "reason"=> "UNKNOWN"
-                ]
+            $data=[
+                "linesToRefund"=> $request->linesToRefund,
+                "shippingCost"=> $request->shippingCost,
+                "amount"=> $request->amount,
+                "currency"=> "EUR"
             ];
-            return $this->service->postHttp('/orders/'.$order.'/return', $data);
-        }else
-        {
-            //error code = 422 - message = Unprocessable Entity - Expected errors are:-Refund not allowed (wrong order status)
+            if($request->currency)
+            {
+                $data['currency'] = $request->currency;
+            }
+            if($transactionId)
+            {
+                // return $data;
+                return $this->service->postHttp('/orders/'.$order.'/refund?transactionId='.$transactionId, $data);
+            }else
+            {
+                // return 204;
+                return $this->service->postHttp('/orders/'.$order.'/refund', $data);
+            }
         }
+        else
+        {
+            return 422;
+        }
+        
+        
     }
-}
+
+    public function returnProduct(Request $request)
+    {
+        //Get order info
+        $order = $request->order;
+        //  $header = $request->header();
+        $data =$request->input();
+    
+        // return $data;
+        //  return $header;
+        // $or = $this->show($order);
+        // $status= $or['status'];
+
+        //A refund is allowed when status of order is SHIPPED
+        // if($status == "SHIPPED") 
+        // {
+        //     $data=[
+        //         "identifierType" => $request->identifierType,
+        //         "identifier" => $request->identifier,
+        //         "quantity" => $request->quantity,
+        //         "reason" => $request->reason
+        //     ];
+        // if($request->date)
+        // {
+        //     $data["date"] = $request->date;
+        // }
+        // return $data;            
+        return $this->service->postHttp('/orders/'.$order.'/return', $data);
+        // return $this->service->postWithHeaders($header,'/orders/'.$order.'/return', $data);
+        // }
+        // else
+        // {
+        //     return 422;
+        // }        
+    }
+}//end class

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class Service 
 {
@@ -22,7 +23,7 @@ class Service
         try {
             return Http::withHeaders($this->HEADER)->get($this->PATH.$endpoint);
         } catch (\Throwable $th) {
-            \Log::critical($th->getMessage());
+            Log::critical($th->getMessage());
         }
     }
 
@@ -31,16 +32,35 @@ class Service
         try {
             return Http::withHeaders($this->HEADER)->put($this->PATH.$endpoint, [$data]);
         } catch (\Throwable $th) {
-            \Log::critical($th->getMessage());
+            Log::critical($th->getMessage());
         }
     }
+
+    public function putWithHeaders($header,$endpoint, $data)
+    {
+        try {
+            return Http::withHeaders($header)->put($this->PATH.$endpoint, [$data]);
+        } catch (\Throwable $th) {
+            Log::critical($th->getMessage());
+        }
+    }
+
 
     public function postHttp($endpoint, $data)
     {
         try {            
             return Http::withHeaders($this->HEADER)->post($this->PATH.$endpoint, [$data]);
         } catch (\Throwable $th) {
-            \Log::critical($th->getMessage());
+            Log::critical($th->getMessage());
+        }
+    }
+
+    public function postWithHeaders($header,$endpoint, $data)
+    {
+        try {
+            return Http::withHeaders($header)->post($this->PATH.$endpoint, [$data]);
+        } catch (\Throwable $th) {
+            Log::critical($th->getMessage());
         }
     }
 }
