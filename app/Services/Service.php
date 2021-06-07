@@ -63,4 +63,20 @@ class Service
         }
         return $res->getBody();
     }
+
+
+    public function errorResponse($response)
+    {
+        if($response->serverError())
+        {
+            return $response;
+        }elseif($response->clientError())
+        {
+            $res = $response->json();
+            $code = $res['status'];
+            $message = $res['name'].'-'.$res['message'];
+            
+            return ['code' => $code, 'message' => $message];
+        }
+    }
 }

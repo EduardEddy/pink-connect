@@ -16,14 +16,34 @@ class OrderController extends Controller
         $this->service = new Service();
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return $this->service->getHttp('/orders');
+        //first check if there is query params
+        $query = http_build_query($request->query());
+        if($query)
+        {
+            $response = $this->service->getHttp('/orders?'.$query);
+        }else
+        {
+            $response = $this->service->getHttp('/orders');
+        }
+        if($response->successful()){
+            return $response->json();
+        }else
+        {    
+            return $this->service->errorResponse($response);
+        }
     }
 
     public function show( $order )
     {
-        return $this->service->getHttp('/orders/'.$order);
+        $response = $this->service->getHttp('/orders/'.$order);
+        if($response->successful()){
+            return $response->json();
+        }else
+        {    
+            return $this->service->errorResponse($response);
+        }
     }
 
     public function updateOrderStatus(Request $request)
@@ -35,8 +55,13 @@ class OrderController extends Controller
         //body schema
         $data = $request->input();
 
-        //excecute the puthttp() service with the params and data as the
-        return $this->service->putHttp('/orders/'.$order.'/status/'.$status, $data);
+        $response = $this->service->putHttp('/orders/'.$order.'/status/'.$status, $data);
+        if($response->successful()){            
+            return ['code' => 204, 'message' => "OK-The resource was successfully updated"];
+        }else
+        {    
+            return $this->service->errorResponse($response);
+        }
     }
 
     public function cancelProducts(Request $request)
