@@ -31,5 +31,5 @@ Route::post("/orders/{order}/invoices",[OrderController::class, "sendInvoice"]);
 
 Route::get('offers',[OfferController::class,'index']);
 Route::get('offers/file_status',[OfferController::class,'getFileStatus']);
-Route::get('offers/price_list',[OfferController::class,'priceList']);
-Route::get('offers/uploads_stocks',[OfferController::class,'uploadStock']);
+Route::post('offers/price_list',[OfferController::class,'priceList']);
+Route::post('offers/uploads_stocks',[OfferController::class,'uploadStock']);

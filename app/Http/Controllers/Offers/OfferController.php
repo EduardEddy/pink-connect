@@ -8,6 +8,7 @@ use App\Services\Service;
 
 use App\Models\VpStock;
 use App\Models\VpPrice;
+use App\Models\StatusFileUpload;
 
 class OfferController extends Controller
 {
@@ -33,18 +34,31 @@ class OfferController extends Controller
 
     Public function priceList()
     {
-        $data = VpPrice::all();
-        $file="price_list/prices.json";
+        $data = VpPrice::getDataToUpdate();
+        $file=public_path()."/"."price_list/prices.json";
         file_put_contents($file, $data);
-        return $this->service->postFileHttp('/price-list/755', $file, 'priceList');
+        $filePrice = $this->service->postFileHttp('/price-list/755', $file, 'priceList');
+        StatusFileUpload::create([
+            'name' => $filePrice,
+            'status' => 'PENDING',
+            'type' => 'price' 
+        ]);
+        return $filePrice;
     }
 
 
-    public function uploadStock(Request $request)
+    public function uploadStock()
     {
-        $data = VpStock::all();
-        $file="stock_list/stock.json";
+        $data = VpStock::getDataToUpdate();
+        $file=public_path()."/"."stock_list/stock.json";
         file_put_contents($file, $data);
-        return $this->service->postFileHttp('/stock', $file, 'stock');
+        $fileStock = $this->service->postFileHttp('/stock', $file, 'stock');
+        $fileStock_replace = str_replace('"','',$fileStock);
+        StatusFileUpload::create([
+            'name' => $fileStock_replace,
+            'status' => 'PENDING',
+            'type' => 'stock' 
+        ]);
+        return $fileStock;
     }
 }
