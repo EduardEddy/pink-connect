@@ -13,17 +13,18 @@ use App\Models\StatusFileUpload;
 class OfferController extends Controller
 {
     private $service;
+    private $shopId;
     public function __construct()
     {
         $this->service = new Service();
+        $this->shopId = env('SHOP_ID');
     }
 
     public function index(Request $request)
     {
         $offset = $request->offset ? $request->offset : 0;
         $limit = $request->limit ? $request->limit : 50;
-        $shopId = 755;
-        $route = '/offers?shopChannelId='.$shopId.'&offset='.$offset.'&limit='.$limit;
+        $route = '/offers?shopChannelId='.$this->shopId.'&offset='.$offset.'&limit='.$limit;
         return $this->service->getHttp($route);
     }
 
@@ -37,7 +38,7 @@ class OfferController extends Controller
         $data = VpPrice::getDataToUpdate();
         $file=public_path()."/"."price_list/prices.json";
         file_put_contents($file, $data);
-        $filePrice = $this->service->postFileHttp('/price-list/755', $file, 'priceList');
+        $filePrice = $this->service->postFileHttp('/price-list/'.$this->shopId, $file, 'priceList');
         StatusFileUpload::create([
             'name' => $filePrice,
             'status' => 'PENDING',

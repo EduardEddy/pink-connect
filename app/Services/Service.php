@@ -15,7 +15,7 @@ class Service
     {
         $this->PATH = env('BASE_PATH');
         $this->TOKEN = env('TOKEN');
-        $this->HEADER = ['Authorization'=>"Bearer $this->TOKEN", "Content-Type"=>"application/json"];
+        $this->HEADER = ['Authorization'=>"Bearer $this->TOKEN"];
     }
 
     public function getHttp($endpoint)
@@ -58,6 +58,7 @@ class Service
                 ]
             ],
         ]);
+        //\Log::alert($res);
         if($type =='invoice'){
             return $res->getStatusCode();
         }

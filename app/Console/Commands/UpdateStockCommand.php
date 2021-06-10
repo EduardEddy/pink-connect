@@ -24,6 +24,7 @@ class UpdateStockCommand extends Command
     protected $description = 'Recorre la lista de Stock y los actualiza';
     protected $service;
     protected $offerCtrl;
+    protected $shopId;
     /**
      * Create a new command instance.
      *
@@ -34,6 +35,7 @@ class UpdateStockCommand extends Command
         parent::__construct();
         $this->service = new Service();
         $this->offerCtrl = new OfferController();
+        $this->shopId = env('SHOP_ID');
     }
 
     /**
@@ -50,12 +52,11 @@ class UpdateStockCommand extends Command
     public function compareData()
     {
         $listStock = VpStock::getDataToUpdate();
-        $route = '/offers?shopChannelId=755';
+        $route = '/offers?shopChannelId='.$this->shopId;
         $data = $this->service->getHttp($route);
         $data = json_decode($data, true);
         foreach ($data as $value) {
             foreach ($listStock as $key => $stock) {
-                \Log::critical($value['stock'].'   |   '.$stock->stock);
                 if ($value['gtin'] == $stock->gtin && $value['stock'] == $stock->stock) {
                     \DB::table('vp_stocks')
                     ->where('gtin',$value['gtin'])
