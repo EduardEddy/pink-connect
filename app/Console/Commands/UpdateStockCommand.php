@@ -45,18 +45,24 @@ class UpdateStockCommand extends Command
      */
     public function handle()
     {
+        //llamamos a la funcion compare data para recorrer los registros en DB e igualarlos a true si los precios son iguales en pink conect
         self::compareData();
+        //llamamos a la funcion priceList en el controlador offer para hacer la peticion post y cargar los registros igualados a false
         $this->offerCtrl->uploadStock();
     }
 
     public function compareData()
     {
-        $listStock = VpStock::getDataToUpdate();
+        $listStock = VpStock::getDataToUpdate();// obtenemos los datos desde la DB
+        // armamos el endpoint para hacer la peticion GET
         $route = '/offers?shopChannelId='.$this->shopId;
         $data = $this->service->getHttp($route);
-        $data = json_decode($data, true);
+
+        $data = json_decode($data, true);// decodificamos los datos
+        // recorremos ambos listados los de pink connect y luego la lista de DB
         foreach ($data as $value) {
             foreach ($listStock as $key => $stock) {
+                //comparacion y evaluacion de los datos para determinar si son iguales o no 
                 if ($value['gtin'] == $stock->gtin && $value['stock'] == $stock->stock) {
                     \DB::table('vp_stocks')
                     ->where('gtin',$value['gtin'])

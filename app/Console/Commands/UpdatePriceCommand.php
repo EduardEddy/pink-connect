@@ -45,18 +45,24 @@ class UpdatePriceCommand extends Command
      */
     public function handle()
     {
+        //llamamos a la funcion compare data para recorrer los registros en DB e igualarlos a true si los precios son iguales en pink conect
         self::compareData();
+        //llamamos a la funcion priceList en el controlador offer para hacer la peticion post y cargar los registros igualados a false
         $this->offerCtrl->priceList();
     }
     
     public function compareData()
     {
-        $listPrice = VpPrice::getDataToUpdate();
+        $listPrice = VpPrice::getDataToUpdate();// obtenemos los datos desde la DB
+        // armamos el endpoint para hacer la peticion GET
         $route = '/offers?shopChannelId='.$this->shopId;
         $data = $this->service->getHttp($route);
-        $data = json_decode($data, true);
+
+        $data = json_decode($data, true);// decodificamos los datos
+        // recorremos ambos listados los de pink connect y luego la lista de DB
         foreach ($data as $value) {
             foreach ($listPrice as $key => $price) {
+                //reemplazamos los caracteres para poder hacer la comparacion y evaluar si son iguales o no los datos 
                 $manufacture = str_replace(" €","",$value['manufacturerRecommendedPrice']);
                 $manufacture = str_replace(",",".",$manufacture);
 
