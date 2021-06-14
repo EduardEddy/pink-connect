@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Http\Controllers\Offers\OfferController;
 use App\Services\Service;
 use App\Models\VpPrice;
+use Carbon\Carbon;
 
 class UpdatePriceCommand extends Command
 {
@@ -45,10 +46,12 @@ class UpdatePriceCommand extends Command
      */
     public function handle()
     {
+        \Log::info("comenzando price: ".Carbon::now());
         //llamamos a la funcion compare data para recorrer los registros en DB e igualarlos a true si los precios son iguales en pink conect
         self::compareData();
         //llamamos a la funcion priceList en el controlador offer para hacer la peticion post y cargar los registros igualados a false
         $this->offerCtrl->priceList();
+        \Log::info("finalizando price: ".Carbon::now());
     }
     
     public function compareData()
