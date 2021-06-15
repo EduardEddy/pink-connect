@@ -17,12 +17,12 @@ class CreateVpOrdersTable extends Migration
             $table->id();
             $table->string('marketplaceName')->nullable();
             $table->string('marketplaceCode')->nullable();
-            $table->integer('marketplaceOrderCode')->nullable();
+            $table->string('marketplaceOrderCode')->nullable();
             $table->integer("shopChannelId")->nullable();
             $table->string('shopChannelName')->nullable();
             $table->enum('status', ['WAITING_ACCEPTANCE','PENDING', 'PROCESSING', 'SHIPPED','CANCELLED'])->default('WAITING_ACCEPTANCE');
             $table->timestamp('shippedOrderDate')->nullable();
-            $table->integer('totalPice')->nullable();
+            $table->integer('totalPrice')->nullable();
             $table->integer('shippingCosts')->nullable();
             $table->integer('shippingTaxRate')->nullable();
             $table->string('currency')->nullable();
