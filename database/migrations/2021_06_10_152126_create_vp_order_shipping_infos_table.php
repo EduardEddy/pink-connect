@@ -26,6 +26,7 @@ class CreateVpOrderShippingInfosTable extends Migration
             $table->string("countryIsoCode")->nullable();
             $table->string("email")->nullable();
             $table->string("phone")->nullable();
+            $table->string("comment")->nullable();
             $table->timestamps();
             $table->foreign('order_id')->references('id')->on('vp_orders')->onDelete('cascade');
         });

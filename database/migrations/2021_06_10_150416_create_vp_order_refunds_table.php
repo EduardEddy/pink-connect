@@ -20,6 +20,7 @@ class CreateVpOrderRefundsTable extends Migration
             $table->integer("productCost");
             $table->integer("shippingCost");
             $table->string("currency")->default('EUR');
+            $table->string('type')->nullable();
             $table->timestamps();
             $table->foreign('order_id')->references('id')->on('vp_orders')->onDelete('cascade');
         });

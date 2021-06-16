@@ -25,7 +25,13 @@ class CreateVpOrderLinesTable extends Migration
             $table->string("brandName")->nullable();
             $table->integer("totalPrice")->nullable();
             $table->string("manufacturerReference")->nullable();
-            $table->enum('status', ['RETURNED','PENDING', 'PROCESSING', 'SHIPPED','CANCELLED'])->nullable();          
+            $table->boolean("in_stock")->nullable();
+            $table->boolean("out_of_stock")->nullable();
+            $table->integer("shipped")->nullable()->default(0);
+            $table->integer("returned")->nullable()->default(0);
+            $table->integer("cancelled")->nullable()->default(0);
+            $table->integer("processing")->nullable()->default(0);
+            $table->integer("pending")->nullable()->default(0);
             $table->timestamps();
             $table->foreign('order_id')->references('id')->on('vp_orders')->onDelete('cascade');
         });
