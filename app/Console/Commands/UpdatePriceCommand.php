@@ -62,6 +62,7 @@ class UpdatePriceCommand extends Command
         $data = $this->service->getHttp($route);
 
         $data = json_decode($data, true);// decodificamos los datos
+        $array_update = [];
         // recorremos ambos listados los de pink connect y luego la lista de DB
         foreach ($data as $value) {
             foreach ($listPrice as $key => $price) {
@@ -73,13 +74,16 @@ class UpdatePriceCommand extends Command
                 $sellingPrice = str_replace(",",".",$sellingPrice);
                 
                 if ($value['gtin'] == $price->gtin && floatval($manufacture) == floatval($price->manufacturer_recommended_price) && floatval($sellingPrice) == floatval($price->selling_price)) {
-                    \DB::table('vp_prices')
-                    ->where('gtin',$value['gtin'])
-                    ->update([
-                        'updated'=>true
-                    ]);
+                    array_push($array_update,$value['gtin']);
                 }
             }
         }
+
+        \DB::table('vp_prices')
+        ->whereIn('gtin',$array_update)
+        ->update([
+            'updated'=>true,
+            'updated_at'=>Carbon::now()
+        ]);
     }
 }

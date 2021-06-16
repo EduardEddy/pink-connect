@@ -62,18 +62,22 @@ class UpdateStockCommand extends Command
         $data = $this->service->getHttp($route);
 
         $data = json_decode($data, true);// decodificamos los datos
+        $array_update = [];
         // recorremos ambos listados los de pink connect y luego la lista de DB
         foreach ($data as $value) {
             foreach ($listStock as $key => $stock) {
                 //comparacion y evaluacion de los datos para determinar si son iguales o no 
                 if ($value['gtin'] == $stock->gtin && $value['stock'] == $stock->stock) {
-                    \DB::table('vp_stocks')
-                    ->where('gtin',$value['gtin'])
-                    ->update([
-                        'updated'=>true
-                    ]);
+                    array_push($array_update,$value['gtin']);
                 }
             }
         }
+        // Actualizamos la lista completa
+        \DB::table('vp_stocks')
+        ->whereIn('gtin',$array_update)
+        ->update([
+            'updated'=>true,
+            'updated_at'=>Carbon::now()
+        ]);
     }
 }
