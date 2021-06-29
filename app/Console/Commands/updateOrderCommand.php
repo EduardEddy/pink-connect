@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
-class updateOrderCommand extends Command
+class UpdateOrderCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -67,25 +67,41 @@ class updateOrderCommand extends Command
     public function getNewOrders()
     {
         $outList = array();//return
-        // $lastMonth = mktime(0, 0, 0, date("m")-1, date("d"), date("Y")-1);
-        // $datelte = date('Y-m-d\TH:i:s');
-        // $dategte= date('Y-m-d\TH:i:s',$lastMonth);
+        $lastMonth = mktime(0, 0, 0, date("m")-1, date("d"), date("Y")-1);
+        $datelte = date('Y-m-d\TH:i:s');
+        $dategte= date('Y-m-d\TH:i:s',$lastMonth);
+        $limit = 50;
+        $offset = 0;
         // listamos los pedidos de pink-conect
-        // $route = '/orders?updateDateGTE='.$dategte.
-        //         '&updateDateLTE='.$datelte.
-        //         '&shopChannelId='.$this->shopId;
-        $route = '/orders?updateDateGTE=&shopChannelId='.$this->shopId;
+        $route = '/orders?shopChannelId='.$this->shopId.
+                '&updateDateLTE='.$datelte.
+                '&updateDateGTE='.$dategte.
+                '&offset='.$offset.
+                '&limit='.$limit;
         $data = $this->service->getHttp($route);
         $data = json_decode($data, true);// decodificamos los datos
-
-        // recorremos ambos listados los de pink connect y luego la lista de DB
-        foreach ($data as $value) {
-            $exist = VpOrder::where('id','=',$value['orderId'])->exists();
-            if (!$exist) {
-                array_push($outList,$value);
+        while($data){
+            $offset = $offset + $limit;
+            $route = '/orders?shopChannelId='.$this->shopId.
+                '&updateDateLTE='.$datelte.
+                '&updateDateGTE='.$dategte.
+                '&offset='.$offset.
+                '&limit='.$limit;
+            $data = $this->service->getHttp($route);
+            $data = json_decode($data, true);// decodificamos los datos
+            // recorremos ambos listados los de pink connect y luego la lista de DB
+            foreach ($data as $value) {
+                $exist = VpOrder::where('id','=',$value['orderId'])->exists();
+                if($exist) {
+                    $VP = VpOrder::find($value['orderId']);
+                    if($VP->status != $value['status']){
+                        $this->orderCtrl->updateStatusTransaction($value['status'], $value['orderId']);
+                    }
+                }else {
+                    array_push($outList,$value);
+                } 
             }    
-        }        
- 
-        return $outList;
+        }
+        return $outList;        
     }
 }

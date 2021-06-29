@@ -41,8 +41,8 @@ class OrderController extends Controller
             'requestedShippingMethod'=> $request['requestedShippingMethod'],
             'deliveryNote'=> $request['deliveryNote'],
             'pickupPointId'=> $request['pickupPointId'],
-            "created_at" => Carbon::now('Europe/Madrid'),
-            "updated_at" => Carbon::now('Europe/Madrid')
+            "created_at" => $request['createOrderDate'],
+            "updated_at" => $request['updateOrderDate'],
         ];
         
         //order lines
@@ -217,7 +217,7 @@ class OrderController extends Controller
             return $this->service->errorResponse($response);
         }
     }
-    private function updateStatusTransaction($status, $order){
+    public function updateStatusTransaction($status, $order){
         return DB::transaction(function() use ($status, $order) {  
             $vpOrder = VpOrder::find($order); 
             if($vpOrder)
