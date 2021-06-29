@@ -67,13 +67,15 @@ class updateOrderCommand extends Command
     public function getNewOrders()
     {
         $outList = array();//return
-        // $lastMonth = mktime(0, 0, 0, date("m")-1, date("d"), date("Y")-1);
-        // $datelte = date('Y-m-d\TH:i:s');
-        // $dategte= date('Y-m-d\TH:i:s',$lastMonth);
+        $lastMonth = mktime(0, 0, 0, date("m")-1, date("d"), date("Y")-1);
+        $datelte = date('Y-m-d\TH:i:s');
+        $dategte= date('Y-m-d\TH:i:s',$lastMonth);
+        $limit = 100;
         // listamos los pedidos de pink-conect
-        // $route = '/orders?updateDateGTE='.$dategte.
-        //         '&updateDateLTE='.$datelte.
-        //         '&shopChannelId='.$this->shopId;
+        $route = '/orders?updateDateGTE='.$dategte.
+                '&updateDateLTE='.$datelte.
+                '&shopChannelId='.$this->shopId.
+                '&limit='.$limit;
         $route = '/orders?updateDateGTE=&shopChannelId='.$this->shopId;
         $data = $this->service->getHttp($route);
         $data = json_decode($data, true);// decodificamos los datos
@@ -81,9 +83,14 @@ class updateOrderCommand extends Command
         // recorremos ambos listados los de pink connect y luego la lista de DB
         foreach ($data as $value) {
             $exist = VpOrder::where('id','=',$value['orderId'])->exists();
-            if (!$exist) {
+            if($exist) {
+                $VP = VpOrder::find($value['orderId']);
+                if($VP->status != $value['status']){
+                    $this->orderCtrl->updateStatusTransaction($value['status'], $value['orderId']);
+                }
+            }else {
                 array_push($outList,$value);
-            }    
+            } 
         }        
  
         return $outList;
