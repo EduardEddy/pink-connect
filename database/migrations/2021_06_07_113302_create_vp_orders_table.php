@@ -30,7 +30,7 @@ class CreateVpOrdersTable extends Migration
             $table->string('deliveryNote')->nullable();
             $table->string('pickupPointId')->nullable();
             $table->timestamps();
-            $table->boolean('updated')->default(false);
+            $table->boolean('updated')->default(true);
         });
     }
 

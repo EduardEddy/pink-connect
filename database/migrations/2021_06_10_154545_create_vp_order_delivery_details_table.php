@@ -21,6 +21,7 @@ class CreateVpOrderDeliveryDetailsTable extends Migration
             $table->string("trackingNumber")->nullable();
             $table->string("trackingUrl")->nullable();
             $table->timestamps();
+            $table->boolean('updated')->default(true);
             $table->foreign('order_id')->references('id')->on('vp_orders')->onDelete('cascade');
         });
     }

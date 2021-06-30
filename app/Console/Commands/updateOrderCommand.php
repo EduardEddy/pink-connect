@@ -67,11 +67,13 @@ class UpdateOrderCommand extends Command
     public function getNewOrders()
     {
         $outList = array();//return
+        //sacamos las ordenes del mes
         $lastMonth = mktime(0, 0, 0, date("m")-1, date("d"), date("Y")-1);
-        $datelte = date('Y-m-d\TH:i:s');
-        $dategte= date('Y-m-d\TH:i:s',$lastMonth);
-        $limit = 50;
-        $offset = 0;
+        $dategte= date('Y-m-d\TH:i:s',$lastMonth);//desde
+        $datelte = date('Y-m-d\TH:i:s');//hasta
+        $limit = 50;//limite de registros por consulta
+        $offset = 0;//cantidad de registros para saltarse por consulta
+
         // listamos los pedidos de pink-conect
         $route = '/orders?shopChannelId='.$this->shopId.
                 '&updateDateLTE='.$datelte.
@@ -80,7 +82,24 @@ class UpdateOrderCommand extends Command
                 '&limit='.$limit;
         $data = $this->service->getHttp($route);
         $data = json_decode($data, true);// decodificamos los datos
+        //Mientras retorne datos compararemos los datos de Pinck-conect con la BD
         while($data){
+            // recorremos ambos listados los de pink connect y luego la lista de DB
+            foreach ($data as $value) {
+
+                $exist = VpOrder::where('id','=',$value['orderId'])->exists();
+                if(!$exist) {
+                    array_push($outList,$value);
+                }
+                else { 
+                    //en caso de que exista el pedido pero el estado sea diferente y que aparezca actualizado en la BD
+                    $VP = VpOrder::find($value['orderId']);
+                    if($VP->status != $value['status'] && $VP->updated==1){
+                        $this->orderCtrl->updateStatusTransaction($value['status'], $value['orderId']);
+                    }
+                }
+            }
+            //Sumamos el limite con el offset para recorrer los otros 50 pedidos en la siguiente iteración
             $offset = $offset + $limit;
             $route = '/orders?shopChannelId='.$this->shopId.
                 '&updateDateLTE='.$datelte.
@@ -88,19 +107,7 @@ class UpdateOrderCommand extends Command
                 '&offset='.$offset.
                 '&limit='.$limit;
             $data = $this->service->getHttp($route);
-            $data = json_decode($data, true);// decodificamos los datos
-            // recorremos ambos listados los de pink connect y luego la lista de DB
-            foreach ($data as $value) {
-                $exist = VpOrder::where('id','=',$value['orderId'])->exists();
-                if($exist) {
-                    $VP = VpOrder::find($value['orderId']);
-                    if($VP->status != $value['status']){
-                        $this->orderCtrl->updateStatusTransaction($value['status'], $value['orderId']);
-                    }
-                }else {
-                    array_push($outList,$value);
-                } 
-            }    
+            $data = json_decode($data, true);// decodificamos los datos        
         }
         return $outList;        
     }

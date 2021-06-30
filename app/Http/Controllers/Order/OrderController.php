@@ -14,6 +14,7 @@ use App\Models\VpOrderRefund;
 use App\Models\VpOrderShippingInfo;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -233,6 +234,46 @@ class OrderController extends Controller
                     $vpLine->changeStatus($status);
                     $vpLine->save();                    
                 }
+                $vpOrder->save(); 
+            }            
+        });        
+    }
+
+    public function updateOrderStatusOnVp($status, $vpDeliveryDetail, $vpOrder)
+    {
+        //body schema
+        $order = $vpDeliveryDetail->order_id;
+        $data = [
+            "trackingNumber"=> $vpDeliveryDetail->trackingNumber,
+            "trackingUrl"=> $vpDeliveryDetail->trackingUrl,
+            "carrierId"=> $vpDeliveryDetail->carrierId,
+        ]; 
+
+        //vp response
+        $response = $this->service->putHttp('/orders/'.$order.'/status/'.$status, $data);
+
+        if($response->successful()) {
+            $this->updateStatusVpTransaction($status, $vpOrder, $vpDeliveryDetail);
+            return ['code' => 204, 'message' => "OK-The resource was successfully updated"];
+        }else {    
+            Log::info("The order:". $order." wasn't updated");
+            return $this->service->errorResponse($response);
+        }
+    }
+
+    public function updateStatusVpTransaction($status, $vpOrder, $vpDeliveryDetail){
+        return DB::transaction(function() use ($status, $vpOrder, $vpDeliveryDetail) {  
+            if($vpOrder)
+            {
+                $vpOrder->status = $status;
+                $vpDeliveryDetail->setUpdated();
+                
+                $vpLines = $vpOrder->orderLine()->get();
+                foreach ($vpLines as $vpLine) {
+                    $vpLine->changeStatus($status);
+                    $vpLine->save();                    
+                }
+                $vpOrder->setUpdated();
                 $vpOrder->save(); 
             }            
         });        

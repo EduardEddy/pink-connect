@@ -26,7 +26,8 @@ class VpOrder extends Model
         'currency',
         'requestedShippingMethod',
         'deliveryNote',
-        'pickupPointId'
+        'pickupPointId',
+        'updated'
     ];
     public function orderLine()
     {
@@ -35,21 +36,41 @@ class VpOrder extends Model
 
     public function refund()
     {
-        return $this->hasMany(VpOrderRefund::class);
+        return $this->hasMany(VpOrderRefund::class, 'order_id');
     }
 
     public function shippingInfo()
     {
-        return $this->hasOne(VpOrderShippingInfo::class);
+        return $this->hasOne(VpOrderShippingInfo::class, 'order_id');
     }
 
     public function deliveryDetail()
     {
-        return $this->hasMany(VpOrderDeliveryDetail::class);
+        return $this->hasMany(VpOrderDeliveryDetail::class, 'order_id');
     }
 
     public static function getOrders()
     {  
         return VpOrder::all();
+    }
+
+    public static function getDataToUpdate()
+    {
+        $data = VpOrder::where('updated',false)
+        ->get();
+        return $data;
+    }
+
+    public function getDeliverDetailsToUpdate()
+    {
+        $data = $this->deliveryDetail()
+        ->where('updated',false)
+        ->get();
+        return $data;
+    }
+
+    public function setUpdated()
+    {
+        $this->updated=True;
     }
 }
