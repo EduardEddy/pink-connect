@@ -28,9 +28,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('update:price')->everyTenMinutes();
         $schedule->command('update:stock')->everyTenMinutes();
         $schedule->command('update:order')->everyTwoHours();
-        $schedule->command('update:order')->everyTwoHours();
-        $schedule->command('update:status_orders')->everyFiveMinutes();
-        // $schedule->command('update:status_orders')->dailyAt('00:00');
+        $schedule->command('update:status_orders')->dailyAt('00:00');
     }
 
     /**
