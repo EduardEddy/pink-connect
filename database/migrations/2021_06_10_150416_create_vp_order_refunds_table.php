@@ -17,8 +17,8 @@ class CreateVpOrderRefundsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('order_id');
             $table->timestamp("date")->nullable();
-            $table->integer("productCost");
-            $table->integer("shippingCost");
+            $table->double("productCost");
+            $table->double("shippingCost");
             $table->string("currency")->default('EUR');
             $table->string('type')->nullable();
             $table->timestamps();

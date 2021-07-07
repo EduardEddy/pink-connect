@@ -22,9 +22,9 @@ class CreateVpOrdersTable extends Migration
             $table->string('shopChannelName')->nullable();
             $table->enum('status', ['WAITING_ACCEPTANCE','PENDING', 'PROCESSING', 'SHIPPED','CANCELLED'])->default('WAITING_ACCEPTANCE');
             $table->timestamp('shippedOrderDate')->nullable();
-            $table->integer('totalPrice')->nullable();
-            $table->integer('shippingCosts')->nullable();
-            $table->integer('shippingTaxRate')->nullable();
+            $table->double('totalPrice')->nullable();
+            $table->double('shippingCosts')->nullable();
+            $table->double('shippingTaxRate')->nullable();
             $table->string('currency')->nullable();
             $table->string('requestedShippingMethod')->nullable();
             $table->string('deliveryNote')->nullable();

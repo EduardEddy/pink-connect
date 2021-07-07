@@ -19,11 +19,11 @@ class CreateVpOrderLinesTable extends Migration
             $table->string("gtin");
             $table->string("sku");
             $table->string("name")->nullable();
-            $table->integer("price")->nullable();
-            $table->integer("taxRate")->nullable();
+            $table->double("price")->nullable();
+            $table->double("taxRate")->nullable();
             $table->integer("quantity")->nullable();
             $table->string("brandName")->nullable();
-            $table->integer("totalPrice")->nullable();
+            $table->double("totalPrice")->nullable();
             $table->string("manufacturerReference")->nullable();
             $table->boolean("in_stock")->nullable();
             $table->boolean("out_of_stock")->nullable();
