@@ -67,11 +67,12 @@ class UpdateStockCommand extends Command
         foreach ($data as $value) {
             foreach ($listStock as $key => $stock) {
                 //comparacion y evaluacion de los datos para determinar si son iguales o no 
-                if ($value['gtin'] == $stock->gtin && $value['stock'] == $stock->stock) {
+                if ($value['gtin'] == $stock->gtin ) {
                     array_push($array_update,$value['gtin']);
                 }
             }
         }
+        
         // Actualizamos la lista completa
         \DB::table('vp_stocks')
         ->whereIn('gtin',$array_update)
